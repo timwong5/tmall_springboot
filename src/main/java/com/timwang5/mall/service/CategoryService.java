@@ -42,8 +42,29 @@ public class CategoryService {
         return new Page4Navigator<>(pageFromJPA,navigatePages);
     }
 
-
+    /**
+     * add
+     * @param bean
+     */
     public void add(Category bean) {
         categoryDAO.save(bean);
+    }
+
+    /**
+     * delete
+     * @param id
+     */
+    public void delete(int id) {
+        categoryDAO.delete(id);
+    }
+
+    /**
+     * get method
+     * @param id
+     * @return
+     */
+    public Category get(int id){
+        Category category = categoryDAO.findOne(id);
+        return category;
     }
 }

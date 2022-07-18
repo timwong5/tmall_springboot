@@ -67,4 +67,8 @@ public class CategoryService {
         Category category = categoryDAO.findOne(id);
         return category;
     }
+
+    public void update(Category bean){
+        categoryDAO.save(bean);
+    }
 }

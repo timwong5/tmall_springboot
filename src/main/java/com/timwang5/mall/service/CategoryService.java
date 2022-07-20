@@ -37,7 +37,7 @@ public class CategoryService {
     public Page4Navigator<Category> list(int start, int size, int navigatePages) {
         Sort sort = new Sort(Sort.Direction.DESC, "id");
         Pageable pageable = new PageRequest(start, size,sort);
-        Page pageFromJPA =categoryDAO.findAll(pageable);
+        Page pageFromJPA = categoryDAO.findAll(pageable);
 
         return new Page4Navigator<>(pageFromJPA,navigatePages);
     }

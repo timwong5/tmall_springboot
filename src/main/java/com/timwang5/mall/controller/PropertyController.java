@@ -53,5 +53,4 @@ public class PropertyController {
         return bean;
     }
 
-
 }

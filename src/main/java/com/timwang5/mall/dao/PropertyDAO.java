@@ -2,6 +2,7 @@ package com.timwang5.mall.dao;
 
 
 import com.timwang5.mall.pojo.Category;
+import com.timwang5.mall.pojo.Product;
 import com.timwang5.mall.pojo.Property;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

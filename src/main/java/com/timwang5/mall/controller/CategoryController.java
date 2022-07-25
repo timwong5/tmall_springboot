@@ -28,7 +28,7 @@ public class CategoryController {
      */
     @GetMapping("/categories")
     public Page4Navigator<Category> list(@RequestParam(value = "start",defaultValue = "0") int start,
-                                         @RequestParam(value = "size", defaultValue = "5") int size){
+                                         @RequestParam(value = "size", defaultValue = "5") int size) throws Exception{
         start = start < 0 ? 0:start;
         //5表示导航分页最多有5个，像 [1,2,3,4,5] 这样
         Page4Navigator<Category> page =categoryService.list(start, size, 5);
@@ -67,7 +67,7 @@ public class CategoryController {
      * @return
      */
     @DeleteMapping("/categories/{id}")
-    public String delete(@PathVariable("id") int id, HttpServletRequest request){
+    public String delete(@PathVariable("id") int id, HttpServletRequest request) throws Exception{
         categoryService.delete(id);
         File imageFolder = new File(request.getServletContext().getRealPath("img/category"));
         File file = new File(imageFolder,id+".jpg");

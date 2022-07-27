@@ -11,5 +11,11 @@ import java.util.List;
  * @date 2022-07-23 23:32
  */
 public interface ProductImageDAO extends JpaRepository<ProductImage, Integer>{
+    /**
+     * 通过 ProductAndTypeOrder查找Image的List
+     * @param product
+     * @param type
+     * @return
+     */
     List<ProductImage> findByProductAndTypeOrderByIdDesc(Product product, String type);
 }

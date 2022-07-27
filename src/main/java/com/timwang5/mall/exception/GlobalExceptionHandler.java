@@ -11,11 +11,12 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * 异常处理，主要是在处理删除父类信息的时候，
  * 因为外键约束的存在，而导致违反约束。
+ * @author timwong5
  */
 
 @RestController
 @ControllerAdvice
-public class GloabalExceptionHandler {
+public class GlobalExceptionHandler {
     @ExceptionHandler(value = Exception.class)
     public String defaultErrorHandler(HttpServletRequest req, Exception e) throws Exception{
         e.printStackTrace();

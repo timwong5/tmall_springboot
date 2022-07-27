@@ -45,7 +45,9 @@ public class ProductImageController {
             List<ProductImage> details = productImageService.listDetailProductImages(product);
             return details;
         }
-        else return new ArrayList<>();
+        else {
+            return new ArrayList<>();
+        }
     }
 
     @PostMapping("/productImages")

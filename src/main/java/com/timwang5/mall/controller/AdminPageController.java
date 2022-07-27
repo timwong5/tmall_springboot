@@ -4,6 +4,9 @@ package com.timwang5.mall.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
+/**
+ * @author timwong5
+ */
 @Controller
 public class AdminPageController {
     @GetMapping(value="/admin")

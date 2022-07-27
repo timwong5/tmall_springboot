@@ -11,5 +11,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @date 2022-07-21 23:06
  */
 public interface ProductDAO extends JpaRepository<Product,Integer> {
+    //那么要进行条件查询，就是在方法名上面做文章。
+    // 比如这里的findByCategory，就是基于Category进行查询，第二个参数传一个 Pageable ， 就支持分页了
+
+    /**
+     * 通过Category查找产品的分页信息
+     * @param category
+     * @param pageable
+     * @return
+     */
     Page<Product> findByCategory(Category category, Pageable pageable);
 }

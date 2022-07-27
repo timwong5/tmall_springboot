@@ -14,6 +14,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+/**
+ * @author timwong5
+ */
 @RestController
 public class CategoryController {
 
@@ -53,8 +56,9 @@ public class CategoryController {
     private void saveOrUpdateImageFile(Category bean, MultipartFile image, HttpServletRequest request) throws IOException {
         File imageFolder = new File(request.getServletContext().getRealPath("img/category"));
         File file = new File(imageFolder,bean.getId()+".jpg");
-        if(!file.getParentFile().exists())
+        if(!file.getParentFile().exists()) {
             file.getParentFile().mkdirs();
+        }
         image.transferTo(file);
         BufferedImage img = ImageUtil.change2jpg(file);
         ImageIO.write(img, "jpg", file);

@@ -11,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * @author timwong5
  * @date 2022-07-19 15:58
@@ -48,5 +50,14 @@ public class PropertyService {
         Page<Property> pageFromJPA = propertyDAO.findByCategory(category,pageable);
 
         return new Page4Navigator<>(pageFromJPA,navigatePages);
+    }
+
+    /**
+     * 增加通过分类获取所有属性集合的方法
+     * @param category
+     * @return
+     */
+    public List<Property> listByCategory(Category category){
+        return propertyDAO.findByCategory(category);
     }
 }

@@ -1,6 +1,7 @@
 package com.timwang5.mall.pojo;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
 
@@ -8,6 +9,9 @@ import javax.persistence.*;
  * @author timwong5
  * @date 2022-07-23 15:37
  */
+@Entity
+@Table(name = "productimage")
+@JsonIgnoreProperties({ "handler","hibernateLazyInitializer"})
 public class ProductImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

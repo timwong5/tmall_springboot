@@ -2,6 +2,7 @@ package com.timwang5.mall.service;
 
 import com.timwang5.mall.dao.CategoryDAO;
 import com.timwang5.mall.pojo.Category;
+import com.timwang5.mall.pojo.Product;
 import com.timwang5.mall.util.Page4Navigator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,58 +21,57 @@ public class CategoryService {
     @Autowired
     CategoryDAO categoryDAO;
 
-    /**
-     * 对category展示list
-     * @return
-     */
+    public Page4Navigator<Category> list(int start, int size, int navigatePages) {
+        Sort sort = new Sort(Sort.Direction.DESC, "id");
+        Pageable pageable = new PageRequest(start, size, sort);
+        Page pageFromJPA = categoryDAO.findAll(pageable);
+
+        return new Page4Navigator<>(pageFromJPA, navigatePages);
+    }
+
     public List<Category> list() {
         Sort sort = new Sort(Sort.Direction.DESC, "id");
         return categoryDAO.findAll(sort);
     }
 
-
-    /**
-     * 选择页码的list
-     * @param start
-     * @param size
-     * @param navigatePages
-     * @return
-     */
-    public Page4Navigator<Category> list(int start, int size, int navigatePages) {
-        Sort sort = new Sort(Sort.Direction.DESC, "id");
-        Pageable pageable = new PageRequest(start, size,sort);
-        Page pageFromJPA = categoryDAO.findAll(pageable);
-
-        return new Page4Navigator<>(pageFromJPA,navigatePages);
-    }
-
-    /**
-     * add
-     * @param bean
-     */
     public void add(Category bean) {
         categoryDAO.save(bean);
     }
 
-    /**
-     * delete
-     * @param id
-     */
     public void delete(int id) {
         categoryDAO.delete(id);
     }
 
-    /**
-     * get method
-     * @param id
-     * @return
-     */
-    public Category get(int id){
-        Category category = categoryDAO.findOne(id);
-        return category;
+    public Category get(int id) {
+        Category c = categoryDAO.findOne(id);
+        return c;
     }
 
-    public void update(Category bean){
+    public void update(Category bean) {
         categoryDAO.save(bean);
+    }
+
+    public void removeCategoryFromProduct(List<Category> cs) {
+        for (Category category : cs) {
+            removeCategoryFromProduct(category);
+        }
+    }
+
+    public void removeCategoryFromProduct(Category category) {
+        List<Product> products = category.getProducts();
+        if (null != products) {
+            for (Product product : products) {
+                product.setCategory(null);
+            }
+        }
+
+        List<List<Product>> productsByRow = category.getProductsByRow();
+        if (null != productsByRow) {
+            for (List<Product> ps : productsByRow) {
+                for (Product p : ps) {
+                    p.setCategory(null);
+                }
+            }
+        }
     }
 }

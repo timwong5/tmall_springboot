@@ -6,6 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 /**
  * @author timwong5
  * @date 2022-07-21 23:06
@@ -21,4 +23,6 @@ public interface ProductDAO extends JpaRepository<Product,Integer> {
      * @return
      */
     Page<Product> findByCategory(Category category, Pageable pageable);
+
+    List<Product> findByCategoryOrderById(Category category);
 }

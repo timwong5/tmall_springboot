@@ -4,6 +4,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 /**
+ * 控制前台页面的跳转
  * @author timwong5
  * @date 2022-08-08 0:39
  */

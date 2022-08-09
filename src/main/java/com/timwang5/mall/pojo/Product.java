@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author timwong5
@@ -12,7 +13,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "product")
-@JsonIgnoreProperties({ "handler","hibernateLazyInitializer"})
+@JsonIgnoreProperties({"handler", "hibernateLazyInitializer"})
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,10 +21,13 @@ public class Product {
     int id;
 
     @ManyToOne
-    @JoinColumn(name="cid")
+    @JoinColumn(name = "cid")
     private Category category;
 
-    //如果既没有指明 关联到哪个Column,又没有明确要用@Transient忽略，那么就会自动关联到表对应的同名字段
+    /**
+     * 如果既没有指明 关联到哪个Column,
+     * 又没有明确要用@Transient忽略，那么就会自动关联到表对应的同名字段
+     */
     private String name;
     private String subTitle;
     private float originalPrice;
@@ -32,6 +36,46 @@ public class Product {
     private Date createDate;
     @Transient
     private ProductImage firstProductImage;
+    @Transient
+    private List<ProductImage> productSingleImages;
+    @Transient
+    private List<ProductImage> productDetailImages;
+    @Transient
+    private int reviewCount;
+    @Transient
+    private int saleCount;
+
+    public List<ProductImage> getProductSingleImages() {
+        return productSingleImages;
+    }
+
+    public void setProductSingleImages(List<ProductImage> productSingleImages) {
+        this.productSingleImages = productSingleImages;
+    }
+
+    public List<ProductImage> getProductDetailImages() {
+        return productDetailImages;
+    }
+
+    public void setProductDetailImages(List<ProductImage> productDetailImages) {
+        this.productDetailImages = productDetailImages;
+    }
+
+    public int getReviewCount() {
+        return reviewCount;
+    }
+
+    public void setReviewCount(int reviewCount) {
+        this.reviewCount = reviewCount;
+    }
+
+    public int getSaleCount() {
+        return saleCount;
+    }
+
+    public void setSaleCount(int saleCount) {
+        this.saleCount = saleCount;
+    }
 
     public int getId() {
         return id;
@@ -104,5 +148,24 @@ public class Product {
 
     public void setFirstProductImage(ProductImage productImage) {
         this.firstProductImage = productImage;
+    }
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "id=" + id +
+                ", category=" + category +
+                ", name='" + name + '\'' +
+                ", subTitle='" + subTitle + '\'' +
+                ", originalPrice=" + originalPrice +
+                ", promotePrice=" + promotePrice +
+                ", stock=" + stock +
+                ", createDate=" + createDate +
+                ", firstProductImage=" + firstProductImage +
+                ", productSingleImages=" + productSingleImages +
+                ", productDetailImages=" + productDetailImages +
+                ", reviewCount=" + reviewCount +
+                ", saleCount=" + saleCount +
+                '}';
     }
 }

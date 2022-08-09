@@ -1,10 +1,10 @@
 package com.timwang5.mall.service;
 
 import com.timwang5.mall.dao.ProductDAO;
-import com.timwang5.mall.dao.PropertyDAO;
+
 import com.timwang5.mall.pojo.Category;
 import com.timwang5.mall.pojo.Product;
-import com.timwang5.mall.pojo.Property;
+
 import com.timwang5.mall.util.Page4Navigator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,11 +21,18 @@ import java.util.List;
  * @date 2022-07-23 0:57
  */
 @Service
-public class ProductService  {
+public class ProductService {
 
-    @Autowired ProductDAO productDAO;
-    @Autowired CategoryService categoryService;
-    @Autowired ProductImageService productImageService;
+    @Autowired
+    ProductDAO productDAO;
+    @Autowired
+    CategoryService categoryService;
+    @Autowired
+    ProductImageService productImageService;
+    @Autowired
+    OrderItemService orderItemService;
+    @Autowired
+    ReviewService reviewService;
 
     public void add(Product bean) {
         productDAO.save(bean);
@@ -43,12 +50,12 @@ public class ProductService  {
         productDAO.save(bean);
     }
 
-    public Page4Navigator<Product> list(int cid, int start, int size,int navigatePages) {
+    public Page4Navigator<Product> list(int cid, int start, int size, int navigatePages) {
         Category category = categoryService.get(cid);
         Sort sort = new Sort(Sort.Direction.DESC, "id");
         Pageable pageable = new PageRequest(start, size, sort);
-        Page<Product> pageFromJPA =productDAO.findByCategory(category,pageable);
-        return new Page4Navigator<>(pageFromJPA,navigatePages);
+        Page<Product> pageFromJPA = productDAO.findByCategory(category, pageable);
+        return new Page4Navigator<>(pageFromJPA, navigatePages);
     }
 
     public void fill(List<Category> categorys) {
@@ -56,6 +63,7 @@ public class ProductService  {
             fill(category);
         }
     }
+
     public void fill(Category category) {
         List<Product> products = listByCategory(category);
         productImageService.setFirstProductImages(products);
@@ -65,20 +73,33 @@ public class ProductService  {
     public void fillByRow(List<Category> categorys) {
         int productNumberEachRow = 8;
         for (Category category : categorys) {
-            List<Product> products =  category.getProducts();
-            List<List<Product>> productsByRow =  new ArrayList<>();
-            for (int i = 0; i < products.size(); i+=productNumberEachRow) {
-                int size = i+productNumberEachRow;
-                size= size>products.size()?products.size():size;
-                List<Product> productsOfEachRow =products.subList(i, size);
+            List<Product> products = category.getProducts();
+            List<List<Product>> productsByRow = new ArrayList<>();
+            for (int i = 0; i < products.size(); i += productNumberEachRow) {
+                int size = i + productNumberEachRow;
+                size = size > products.size() ? products.size() : size;
+                List<Product> productsOfEachRow = products.subList(i, size);
                 productsByRow.add(productsOfEachRow);
             }
             category.setProductsByRow(productsByRow);
         }
     }
 
-    public List<Product> listByCategory(Category category){
+    public List<Product> listByCategory(Category category) {
         return productDAO.findByCategoryOrderById(category);
+    }
+
+    public void setSaleAndReviewNumber(Product product) {
+        int saleCount = orderItemService.getSalesCount(product);
+        product.setSaleCount(saleCount);
+        int reviewCount = reviewService.getCount(product);
+        product.setReviewCount(reviewCount);
+    }
+
+    public void setSaleAndReviewNumber(List<Product> products) {
+        for (Product product : products) {
+            setSaleAndReviewNumber(product);
+        }
     }
 
 }

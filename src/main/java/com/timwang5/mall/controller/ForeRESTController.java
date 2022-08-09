@@ -1,20 +1,18 @@
 package com.timwang5.mall.controller;
 
-import com.timwang5.mall.pojo.Category;
-import com.timwang5.mall.pojo.User;
-import com.timwang5.mall.service.CategoryService;
-import com.timwang5.mall.service.ProductService;
-import com.timwang5.mall.service.UserService;
+import com.timwang5.mall.comparator.*;
+import com.timwang5.mall.pojo.*;
+import com.timwang5.mall.service.*;
 import com.timwang5.mall.util.Result;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.HtmlUtils;
 
 import javax.servlet.http.HttpSession;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author timwong5
@@ -28,6 +26,12 @@ public class ForeRESTController {
     ProductService productService;
     @Autowired
     UserService userService;
+    @Autowired
+    ProductImageService productImageService;
+    @Autowired
+    PropertyValueService propertyValueService;
+    @Autowired
+    ReviewService reviewService;
 
     @GetMapping("/forehome")
     public Object home() {
@@ -74,4 +78,75 @@ public class ForeRESTController {
         }
     }
 
+    @GetMapping("/foreproduct/{pid}")
+    public Object product(@PathVariable("pid") int pid) {
+        Product product = productService.get(pid);
+
+        List<ProductImage> productSingleImages = productImageService.listSingleProductImages(product);
+        List<ProductImage> productDetailImages = productImageService.listDetailProductImages(product);
+
+        product.setProductSingleImages(productSingleImages);
+        product.setProductDetailImages(productDetailImages);
+
+        List<PropertyValue> propertyValueList = propertyValueService.list(product);
+        List<Review> reviews = reviewService.list(product);
+
+        productService.setSaleAndReviewNumber(product);
+        productImageService.setFirstProductImage(product);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("product", product);
+        map.put("pvs", propertyValueList);
+        map.put("reviews", reviews);
+
+        //自定义工具类Result
+        return Result.success(map);
+    }
+
+    @GetMapping("/forecheckLogin")
+    public Object checkLogin(HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (user != null) {
+            return Result.success();
+        } else {
+            return Result.fail("未登录");
+        }
+    }
+
+
+    @GetMapping("forecategory/{cid}")
+    public Object category(@PathVariable int cid, String sort) {
+        Category c = categoryService.get(cid);
+        productService.fill(c);
+        productService.setSaleAndReviewNumber(c.getProducts());
+        categoryService.removeCategoryFromProduct(c);
+
+        //获取参数sort
+        //如果sort==null，即不排序
+        //如果sort!=null，则根据sort的值，从5个Comparator比较器中选择一个对应的排序器进行排序
+        if (sort != null) {
+            switch (sort) {
+                case "review":
+                    Collections.sort(c.getProducts(), new ProductReviewComparator());
+                    break;
+                case "date":
+                    Collections.sort(c.getProducts(), new ProductDateComparator());
+                    break;
+
+                case "saleCount":
+                    Collections.sort(c.getProducts(), new ProductSaleCountComparator());
+                    break;
+
+                case "price":
+                    Collections.sort(c.getProducts(), new ProductPriceComparator());
+                    break;
+
+                case "all":
+                    Collections.sort(c.getProducts(), new ProductAllComparator());
+                    break;
+                default:
+            }
+        }
+        return c;
+    }
 }

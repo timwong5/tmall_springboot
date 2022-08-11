@@ -2,6 +2,7 @@ package com.timwang5.mall.service;
 
 import com.timwang5.mall.dao.ProductDAO;
 import com.timwang5.mall.dao.ProductImageDAO;
+import com.timwang5.mall.pojo.OrderItem;
 import com.timwang5.mall.pojo.Product;
 import com.timwang5.mall.pojo.ProductImage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,32 +24,32 @@ public class ProductImageService {
     @Autowired
     ProductService productService;
 
-    public void add(ProductImage bean){
+    public void add(ProductImage bean) {
         productImageDAO.save(bean);
     }
 
-    public void delete(int id){
+    public void delete(int id) {
         productImageDAO.delete(id);
     }
 
-    public ProductImage get(int id){
+    public ProductImage get(int id) {
         return productImageDAO.findOne(id);
     }
 
-    public List<ProductImage> listSingleProductImages(Product product){
+    public List<ProductImage> listSingleProductImages(Product product) {
         return productImageDAO.findByProductAndTypeOrderByIdDesc(product, type_single);
     }
 
-    public List<ProductImage> listDetailProductImages(Product product){
+    public List<ProductImage> listDetailProductImages(Product product) {
         return productImageDAO.findByProductAndTypeOrderByIdDesc(product, type_detail);
     }
 
     public void setFirstProductImage(Product product) {
         List<ProductImage> singleImages = listSingleProductImages(product);
-        if(!singleImages.isEmpty()) {
+        if (!singleImages.isEmpty()) {
             product.setFirstProductImage(singleImages.get(0));
         }
-            //这样做是考虑到产品还没有来得及设置图片，但是在订单后台管理里查看订单项的对应产品图片。
+        //这样做是考虑到产品还没有来得及设置图片，但是在订单后台管理里查看订单项的对应产品图片。
         else {
             product.setFirstProductImage(new ProductImage());
         }
@@ -61,8 +62,11 @@ public class ProductImageService {
     }
 
 
-
-
+    public void setFirstProdutImagesOnOrderItems(List<OrderItem> ois) {
+        for (OrderItem orderItem : ois) {
+            setFirstProductImage(orderItem.getProduct());
+        }
+    }
 
 
 }

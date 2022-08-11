@@ -4,9 +4,11 @@ import com.timwang5.mall.dao.OrderItemDAO;
 import com.timwang5.mall.pojo.Order;
 import com.timwang5.mall.pojo.OrderItem;
 import com.timwang5.mall.pojo.Product;
+import com.timwang5.mall.pojo.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 /**
@@ -19,6 +21,8 @@ public class OrderItemService {
     OrderItemDAO orderItemDAO;
     @Autowired
     ProductImageService productImageService;
+    @Autowired
+    ProductService productService;
 
     public void fill(List<Order> orders) {
         for (Order order : orders) {
@@ -72,5 +76,40 @@ public class OrderItemService {
         return result;
     }
 
+    public List<OrderItem> listByUser(User user) {
+        return orderItemDAO.findByUserAndOrderIsNull(user);
+    }
+
+    public void update(OrderItem orderItem) {
+        orderItemDAO.save(orderItem);
+    }
+
+    public int buyoneAndAddCart(int pid, int num, HttpSession session) {
+        Product product = productService.get(pid);
+        int orderItemId = 0;
+
+        User user = (User) session.getAttribute("user");
+        boolean found = false;
+        List<OrderItem> ois = listByUser(user);
+        for (OrderItem oi : ois) {
+            if (oi.getProduct().getId() == product.getId()) {
+                oi.setNumber(oi.getNumber() + num);
+                update(oi);
+                found = true;
+                orderItemId = oi.getId();
+                break;
+            }
+        }
+
+        if (!found) {
+            OrderItem oi = new OrderItem();
+            oi.setUser(user);
+            oi.setProduct(product);
+            oi.setNumber(num);
+            add(oi);
+            orderItemId = oi.getId();
+        }
+        return orderItemId;
+    }
 }
 

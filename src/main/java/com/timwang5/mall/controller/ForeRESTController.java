@@ -5,6 +5,12 @@ import com.timwang5.mall.pojo.*;
 import com.timwang5.mall.service.*;
 import com.timwang5.mall.util.Result;
 import org.apache.commons.lang.math.RandomUtils;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.crypto.SecureRandomNumberGenerator;
+import org.apache.shiro.crypto.hash.SimpleHash;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.HtmlUtils;
@@ -61,7 +67,14 @@ public class ForeRESTController {
             return Result.fail(message);
         }
 
-        user.setPassword(password);
+        String salt = new SecureRandomNumberGenerator().nextBytes().toString();
+        int times = 2;
+        String algorithmName = "md5";
+
+        String encodedPassword = new SimpleHash(algorithmName, password, salt, times).toString();
+
+        user.setSalt(salt);
+        user.setPassword(encodedPassword);
 
         userService.add(user);
 
@@ -70,17 +83,21 @@ public class ForeRESTController {
 
     @PostMapping("/forelogin")
     public Object login(@RequestBody User userParam, HttpSession session) {
-        String name = userParam.getName();
+        String name =  userParam.getName();
         name = HtmlUtils.htmlEscape(name);
 
-        User user = userService.get(name, userParam.getPassword());
-        if (null == user) {
-            String message = "账号密码错误";
-            return Result.fail(message);
-        } else {
+        Subject subject = SecurityUtils.getSubject();
+        UsernamePasswordToken token = new UsernamePasswordToken(name, userParam.getPassword());
+        try {
+            subject.login(token);
+            User user = userService.getByName(name);
             session.setAttribute("user", user);
             return Result.success();
+        } catch (AuthenticationException e) {
+            String message ="账号密码错误";
+            return Result.fail(message);
         }
+
     }
 
     @GetMapping("/foreproduct/{pid}")
@@ -108,14 +125,23 @@ public class ForeRESTController {
         return Result.success(map);
     }
 
-    @GetMapping("/forecheckLogin")
-    public Object checkLogin(HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user != null) {
+    @GetMapping("forecheckLogin")
+    public Object checkLogin() {
+        Subject subject = SecurityUtils.getSubject();
+        if(subject.isAuthenticated()) {
             return Result.success();
         } else {
             return Result.fail("未登录");
         }
+    }
+
+    @GetMapping("/forelogout")
+    public String logout( ) {
+        Subject subject = SecurityUtils.getSubject();
+        if(subject.isAuthenticated()) {
+            subject.logout();
+        }
+        return "redirect:home";
     }
 
 
@@ -154,6 +180,8 @@ public class ForeRESTController {
         }
         return c;
     }
+
+
 
     @PostMapping("foresearch")
     public Object search(String keyword) {

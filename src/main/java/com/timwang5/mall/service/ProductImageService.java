@@ -6,6 +6,9 @@ import com.timwang5.mall.pojo.OrderItem;
 import com.timwang5.mall.pojo.Product;
 import com.timwang5.mall.pojo.ProductImage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,6 +18,7 @@ import java.util.List;
  * @date 2022-07-24 0:11
  */
 @Service
+@CacheConfig(cacheNames="productImages")
 public class ProductImageService {
     public static final String type_single = "single";
     public static final String type_detail = "detail";
@@ -24,22 +28,27 @@ public class ProductImageService {
     @Autowired
     ProductService productService;
 
+    @CacheEvict(allEntries=true)
     public void add(ProductImage bean) {
         productImageDAO.save(bean);
     }
 
+    @CacheEvict(allEntries=true)
     public void delete(int id) {
         productImageDAO.delete(id);
     }
 
+    @Cacheable(key="'productImages-one-'+ #p0")
     public ProductImage get(int id) {
         return productImageDAO.findOne(id);
     }
 
+    @Cacheable(key="'productImages-single-pid-'+ #p0.id")
     public List<ProductImage> listSingleProductImages(Product product) {
         return productImageDAO.findByProductAndTypeOrderByIdDesc(product, type_single);
     }
 
+    @Cacheable(key="'productImages-detail-pid-'+ #p0.id")
     public List<ProductImage> listDetailProductImages(Product product) {
         return productImageDAO.findByProductAndTypeOrderByIdDesc(product, type_detail);
     }
